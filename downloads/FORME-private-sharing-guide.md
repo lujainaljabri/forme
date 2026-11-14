@@ -1,15 +1,22 @@
 # FORME · Private Sharing
 
-## Current release: implemented, sharing OFF
+## Current setup: empty free backend ready; sharing OFF
 
-The front-end Owner controls, isolated Viewer Dashboard, selected-data projection,
-optional Supabase adapter, backend migration, and automated permission tests are
-included. No live backend has been provisioned by this change. No personal records
-have been read from your iPhone or uploaded. No invitation has been created.
+Following Owner approval, a dedicated **forme-private-sharing** project was created
+in **your selected Free organization**, with a verified quote of **$0/month**, in Mumbai (ap-south-1).
+The migration is installed. Sharing and all scopes are disabled; the Owner binding,
+Viewer binding, invitations and shared summaries are empty. No fitness records,
+profile JSON or tracking history were uploaded.
 
-Open **More → Private Sharing** to review the feature. Your existing app remains
-local-first and requires no account to track fitness. Auth is needed only for
-optional live sharing. This release does not activate it.
+The API URL is `https://bgobhswgfxydjdyaxcwe.supabase.co`. Only the intentionally
+public publishable connection key is included in the app. Connection form values
+are prefilled for convenience but not saved automatically. No sign-in or fitness
+upload happens just by loading the app or previewing selections.
+
+**Remaining:** configure GitHub OAuth, have the Owner sign in, verify and bind the
+sole Owner UUID, and complete synthetic two-account/iPhone acceptance checks.
+Enabling real sharing and the first fitness upload still require separate approval.
+Your full record remains in the existing on-device IndexedDB.
 
 ## Snapshot versus live sharing
 
@@ -67,8 +74,11 @@ Viewer health data is kept in memory, not IndexedDB/localStorage/Cache Storage.
   repository, invitation or chat.
 - All tables live in a non-exposed `forme_private` schema. Direct access is revoked
   from public/anon/authenticated, and RLS is enabled with no permissive table policy.
-  Narrow, explicitly granted authenticated RPC functions check permissions inside
-  PostgreSQL with locked rows and a fixed search_path. Anonymous RPCs are denied.
+  Narrow public SECURITY INVOKER RPC wrappers delegate to checked SECURITY DEFINER
+  implementations in the unexposed private schema. They check permissions inside
+  PostgreSQL with locked rows and a fixed search_path. Every operation verifies
+  the authenticated session against auth.sessions, so revoked/expired sessions
+  cannot rely on an otherwise unexpired JWT. Anonymous RPCs are denied.
 - The API validates and reconstructs every allowed field. Unknown fields, including
   notes or weights smuggled into nested records, are rejected. An unapproved scope
   cannot be published even if the client is modified.
@@ -114,9 +124,9 @@ Charts are derived only from actual completed sessions; no demo history is seede
 preferences, nutrition, hydration, body measurements, sleep, private notes, active
 workout state, workout loads, backups and full IndexedDB state.
 
-## Approval and safe setup plan — do not activate yet
+## Safe setup plan — do not activate sharing yet
 
-These instructions describe future configuration, not an action already performed.
+Steps 1–4 are completed for this project. OAuth, Owner binding and live acceptance are still pending.
 This remains optional; the rest of FORME works without any cloud project.
 
 1. **Approve the architecture first.** Confirm that selected summaries may be stored
@@ -133,10 +143,11 @@ This remains optional; the rest of FORME works without any cloud project.
 4. In that project’s SQL Editor run **backend/sharing.sql** once, in the dedicated
    empty project. Do **not** run test-bootstrap.sql or permissions.test.sql there;
    those are only for disposable synthetic local tests. The migration creates no
-   personal fitness data and starts sharing disabled.
+   personal fitness data and starts sharing disabled. This migration is already
+   installed in the approved project; do not run it a second time.
 5. Create a GitHub OAuth App under your own GitHub developer settings, using the
    callback URL shown by the project's GitHub Auth provider:
-   `https://YOUR-PROJECT.supabase.co/auth/v1/callback`.
+   `https://bgobhswgfxydjdyaxcwe.supabase.co/auth/v1/callback`.
    Configure its client ID and client secret in **Supabase Auth → Providers →
    GitHub**, never in FORME. Use identity access only, not repository permissions.
 6. In Supabase Auth URL configuration set Site URL to
@@ -245,8 +256,8 @@ configuration, a read-only Viewer without Owner IndexedDB access, and fail-close
 behavior after denied refresh. Existing tracker/backup/reopen tests still run.
 
 These tests do not impersonate a real Supabase OAuth service and do not replace a
-live two-account acceptance test. No live Supabase project, OAuth callback, real
-invitation or real device sharing has been verified or activated by this change.
+live two-account acceptance test. The empty live project and its default-deny API have been verified. Real OAuth
+callbacks, invitations and device sharing remain unconfigured and unverified.
 After approval/configuration, verify with synthetic non-private records first:
 
 1. Anonymous access is denied, including direct RPC calls with just the anon key.
@@ -260,3 +271,13 @@ After approval/configuration, verify with synthetic non-private records first:
 
 Do not turn on sharing or upload real data until these checks and the Owner's
 explicit approval are complete.
+
+## Verified backend checks
+
+Live anonymous RPC calls to forme_role, forme_owner_status and forme_view return 401. Requests for the private schema through the Data API return 406 (unexposed).
+All three tables have RLS enabled, no anonymous sharing RPC has EXECUTE, and no
+public sharing function is SECURITY DEFINER. The only advisor notices are INFO
+for RLS enabled without policies: direct table access is intentionally default-deny;
+checked private implementations are the only data access path.
+
+Advisor explanation: https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy

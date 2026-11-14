@@ -11,8 +11,8 @@ tracking script, advertising, or external font request.
 See **PRIVATE-SHARING.md** for the snapshot/live comparison, secure free-tier
 architecture, exact shared fields, approval boundary, setup and migration plan,
 and backend permission tests. Open **More → Private Sharing** in the app.
-No backend has been provisioned and no personal data has been uploaded by this
-release. The rest of the app remains local-first. Never publish profile JSON.
+An empty approved Free backend has been provisioned with sharing disabled; no
+personal fitness data has been uploaded. GitHub OAuth and Owner binding remain pending. The rest of the app remains local-first. Never publish profile JSON.
 
 ## Run and build
 
