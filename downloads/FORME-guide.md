@@ -3,8 +3,16 @@
 Strength in Your Own Way
 
 A private, local-first personal fitness PWA for personal use. React, TypeScript, Vite,
-Dexie/IndexedDB, Recharts, Lucide, and self-hosted open-source fonts. No account,
-paid API, backend, tracking script, advertising, or external font request.
+Dexie/IndexedDB, Recharts, Lucide, and self-hosted open-source fonts. No account or backend is required for the original local trackers. No paid API,
+tracking script, advertising, or external font request.
+
+## Optional Private Sharing — OFF by default
+
+See **PRIVATE-SHARING.md** for the snapshot/live comparison, secure free-tier
+architecture, exact shared fields, approval boundary, setup and migration plan,
+and backend permission tests. Open **More → Private Sharing** in the app.
+No backend has been provisioned and no personal data has been uploaded by this
+release. The rest of the app remains local-first. Never publish profile JSON.
 
 ## Run and build
 
